@@ -86,7 +86,7 @@ class MQTTService : Service() {
                     if (msg != null) {
                         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
                         notificationManager.notify(notificationId++, msg)
-                        notificationManager.notify(1, summary)
+                        notificationManager.notify(2, summary)
                     }
                 }
 
