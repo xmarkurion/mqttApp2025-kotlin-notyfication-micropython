@@ -6,6 +6,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
+import androidx.core.app.NotificationCompat
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
 import org.eclipse.paho.client.mqttv3.MqttCallback
 import org.eclipse.paho.client.mqttv3.MqttClient
@@ -16,7 +17,7 @@ class MQTTService : Service() {
     private lateinit var mqttClient: MqttClient
     private val brokerUrl = Finals.brokerUrl
     private val clientId = Finals.clientId
-    private var notificationId = 2 // Start from 2 to avoid conflict with the foreground notification
+    private var notificationId = 3 // Start from 3 to avoid conflict with the foreground notification
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         setupNotyfication()
@@ -80,10 +81,12 @@ class MQTTService : Service() {
 
                     // Create a new dismissible notification for each message
                     val notificationChannel = MQTTnotyficationChannel.getInstance()
-                    val msg: Notification? = notificationChannel.createNotification("New message: ${String(message.payload)}")
+                    val msg: Notification? = notificationChannel.createShortNotification(topic,"New message: ${String(message.payload)}")
+                    val summary: Notification? = notificationChannel.createGroupSummaryNotification()
                     if (msg != null) {
                         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-                        notificationManager.notify(notificationId, msg)
+                        notificationManager.notify(notificationId++, msg)
+                        notificationManager.notify(1, summary)
                     }
                 }
 

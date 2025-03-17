@@ -39,8 +39,8 @@ class MainActivity : AppCompatActivity() {
 //            publishMessage("TriggerAction")
 //        }
 
-//        // Check if the app has notification access & if not, ask the user to open settings
-//        checkNotificationAccess(this)
+        // Check if the app has notification access & if not, ask the user to open settings
+        NotificationPermissionCheck.checkNotificationAccess(this)
 
         // Start the MQTT background service
         val serviceIntent = Intent(this, MQTTService::class.java)

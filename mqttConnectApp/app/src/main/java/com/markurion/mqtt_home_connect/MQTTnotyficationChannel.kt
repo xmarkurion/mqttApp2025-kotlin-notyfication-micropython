@@ -14,6 +14,8 @@ class MQTTnotyficationChannel private constructor() {
     private var context: Context? = null
     companion object {
         const val CHANNEL_ID = "MQTTServiceChannel"
+        const val MESSAGES_CHANNEL_ID = "MQTTMessagesChannel"
+        const val GROUP_KEY_MQTT_MESSAGES = "com.markurion.mqtt_home_connect.MQTT_MESSAGES"
         @SuppressLint("StaticFieldLeak")
         @Volatile
         private var INSTANCE: MQTTnotyficationChannel? = null
@@ -49,16 +51,67 @@ class MQTTnotyficationChannel private constructor() {
         }
     }
 
-    public fun createNotificationChannel() {
+    fun createShortNotification(title: String, message: String): Notification? {
+        return this.context?.let {
+            NotificationCompat.Builder(it, CHANNEL_ID)
+                .setContentTitle(title)
+                .setContentText(message)
+                .setSmallIcon(R.drawable.baseline_back_hand_24)
+                .setGroup(GROUP_KEY_MQTT_MESSAGES)
+                .build()
+        }
+    }
+
+    fun createGroupSummaryNotification(): Notification? {
+        return this.context?.let {
+            NotificationCompat.Builder(it, CHANNEL_ID)
+                .setContentTitle("MQTT Messages")
+                .setContentText("You have new messages")
+                .setSmallIcon(R.drawable.baseline_back_hand_24)
+                .setStyle(NotificationCompat.InboxStyle()
+                    .setSummaryText("You have new messages"))
+                .setGroup(GROUP_KEY_MQTT_MESSAGES)
+                .setGroupSummary(true)
+                .build()
+        }
+    }
+
+//    fun summaryNotyfication(title: String, message: String): Notification?{
+//        return this.context?.let {
+//            NotificationCompat.Builder(it, MESSAGES_CHANNEL_ID)
+//                .setContentTitle(title)
+//                .setContentText(message)
+//                .setSmallIcon(R.drawable.baseline_back_hand_24)
+////                .setStyle(
+////                    NotificationCompat.InboxStyle()
+////                        .addLine("New message..")
+////                        .setSummaryText("You have new messages")
+////                )
+//                .setGroupSummary(true)
+//                .build()
+//        }
+//    }
+
+
+    private fun createNotificationChannel() {
         val channel = NotificationChannel(
             CHANNEL_ID,
-            "MQTT Notifications", // Name of the channel
+            "MQTT Server notifications", // Name of the channel
             NotificationManager.IMPORTANCE_HIGH // Importance level
         ).apply {
             description = "Notifications for the MQTT foreground service" // Description
         }
 
+        val messagesChannel = NotificationChannel(
+            MESSAGES_CHANNEL_ID,
+            "MQTT Messages",
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply {
+            description = "Notifications for incoming MQTT messages"
+        }
+
         val manager = context?.getSystemService(NotificationManager::class.java)
         manager?.createNotificationChannel(channel)
+        manager?.createNotificationChannel(messagesChannel)
     }
 }
