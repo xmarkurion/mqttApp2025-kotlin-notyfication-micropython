@@ -37,11 +37,11 @@
             </intent-filter>
         </activity>
 
-<!--        <service-->
-<!--            android:name=".MQTTService"-->
-<!--            android:exported="false"-->
-<!--            android:foregroundServiceType="connectedDevice" />-->
-<!--        <receiver android:name=".DisconnectReceiver" />-->
+        <service
+            android:name=".MQTTService"
+            android:exported="false"
+            android:foregroundServiceType="connectedDevice" />
+        <receiver android:name=".DisconnectReceiver" />
 
     </application>
 
