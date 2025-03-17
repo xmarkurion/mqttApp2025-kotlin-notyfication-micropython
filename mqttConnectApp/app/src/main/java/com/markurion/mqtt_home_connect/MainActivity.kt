@@ -68,7 +68,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-//        checkNotificationAccess(this)
+        if (!NotificationPermissionCheck.areNotificationsEnabled(this)) {
+            NotificationPermissionCheck.checkNotificationAccess(this)
+        }
     }
 }
 

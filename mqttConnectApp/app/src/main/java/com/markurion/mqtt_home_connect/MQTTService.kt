@@ -33,13 +33,6 @@ class MQTTService : Service() {
         return START_STICKY
     }
 
-//    private fun setupNotyfication(){
-//        val notificationChannel = MQTTnotyficationChannel.getInstance()
-//        MQTTnotyficationChannel.setContext(this)
-//        val msg: Notification? = notificationChannel.createNotification("MQTT Service is running...")
-//        startForeground(1, msg)
-//    }
-
     private fun setupNotyfication() {
         val notificationChannel = MQTTnotyficationChannel.getInstance()
         MQTTnotyficationChannel.setContext(this)
