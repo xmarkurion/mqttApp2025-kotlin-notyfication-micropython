@@ -16,6 +16,7 @@ class MQTTnotyficationChannel private constructor() {
         const val CHANNEL_ID = "MQTTServiceChannel"
         const val MESSAGES_CHANNEL_ID = "MQTTMessagesChannel"
         const val GROUP_KEY_MQTT_MESSAGES = "com.markurion.mqtt_home_connect.MQTT_MESSAGES"
+
         @SuppressLint("StaticFieldLeak")
         @Volatile
         private var INSTANCE: MQTTnotyficationChannel? = null
@@ -75,23 +76,6 @@ class MQTTnotyficationChannel private constructor() {
                 .build()
         }
     }
-
-//    fun summaryNotyfication(title: String, message: String): Notification?{
-//        return this.context?.let {
-//            NotificationCompat.Builder(it, MESSAGES_CHANNEL_ID)
-//                .setContentTitle(title)
-//                .setContentText(message)
-//                .setSmallIcon(R.drawable.baseline_back_hand_24)
-////                .setStyle(
-////                    NotificationCompat.InboxStyle()
-////                        .addLine("New message..")
-////                        .setSummaryText("You have new messages")
-////                )
-//                .setGroupSummary(true)
-//                .build()
-//        }
-//    }
-
 
     private fun createNotificationChannel() {
         val channel = NotificationChannel(

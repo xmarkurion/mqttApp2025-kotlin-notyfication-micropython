@@ -89,7 +89,10 @@ class MQTTService : Service() {
             })
 
             mqttClient.connect(options)
-            mqttClient.subscribe("a00300334/#", 0)
+            mqttClient.subscribe("a00300334/led", 0)
+            mqttClient.subscribe("a00300334/pir", 0)
+            mqttClient.subscribe("a00300334/light", 0)
+            mqttClient.subscribe("a00300334/action", 0)
 
         } catch (e: Exception) {
             e.printStackTrace()
