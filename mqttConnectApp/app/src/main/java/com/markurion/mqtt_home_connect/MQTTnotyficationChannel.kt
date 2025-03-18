@@ -45,9 +45,9 @@ class MQTTnotyficationChannel private constructor() {
             NotificationCompat.Builder(it, CHANNEL_ID)
                 .setContentTitle("MQTT Service")
                 .setContentText(message)
-                .setSmallIcon(R.drawable.mqtt_logo) // Ensure this icon exists
+                .setSmallIcon(R.drawable.baseline_filter_hdr_24) // Ensure this icon exists
                 .setOngoing(true) // Make the notification non-dismissible
-                .addAction(R.drawable.ic_launcher_foreground, "Disconnect", pendingDisconnectIntent) // Add the "Disconnect" button
+                .addAction(R.drawable.baseline_filter_hdr_24, "Disconnect", pendingDisconnectIntent) // Add the "Disconnect" button
                 .build()
         }
     }
