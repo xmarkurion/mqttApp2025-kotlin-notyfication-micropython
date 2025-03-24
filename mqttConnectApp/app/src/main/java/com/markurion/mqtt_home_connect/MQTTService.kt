@@ -4,20 +4,30 @@ import android.app.Notification
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
+import android.os.Binder
 import android.os.IBinder
 import android.util.Log
-import androidx.core.app.NotificationCompat
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
-import org.eclipse.paho.client.mqttv3.MqttCallback
-import org.eclipse.paho.client.mqttv3.MqttClient
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions
-import org.eclipse.paho.client.mqttv3.MqttMessage
+import org.eclipse.paho.mqttv5.client.IMqttToken
+import org.eclipse.paho.mqttv5.client.MqttClient
+import org.eclipse.paho.mqttv5.client.MqttConnectionOptions
+import org.eclipse.paho.mqttv5.common.MqttMessage
+import org.eclipse.paho.mqttv5.client.MqttCallback
+import org.eclipse.paho.mqttv5.client.MqttDisconnectResponse
+import org.eclipse.paho.mqttv5.common.MqttException
+import org.eclipse.paho.mqttv5.common.packet.MqttProperties
 
 class MQTTService : Service() {
+    private val TAG = "MQTTService"
     private lateinit var mqttClient: MqttClient
     private val brokerUrl = Finals.brokerUrl
     private val clientId = Finals.clientId
     private var notificationId = 3 // Start from 3 to avoid conflict with the foreground notification
+
+    private val binder = LocalBinder()
+
+    inner class LocalBinder : Binder() {
+        fun getService(): MQTTService = this@MQTTService
+    }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         setupNotyfication()
@@ -27,6 +37,7 @@ class MQTTService : Service() {
             if (it.getStringExtra("action") == "publish") {
                 val topic = it.getStringExtra("topic")
                 val message = it.getStringExtra("message")
+                Log.d(TAG, "onStartCommand: $topic -> $message")
                 publishMessage(topic, message)
             }
         }
@@ -50,16 +61,19 @@ class MQTTService : Service() {
         try {
             mqttClient = MqttClient(brokerUrl, clientId, null)
 
-            val options = MqttConnectOptions().apply {
-                isCleanSession = true
+            val options = MqttConnectionOptions().apply {
+                isCleanStart = true
                 connectionTimeout = 10
                 keepAliveInterval = 20
-                mqttVersion = MqttConnectOptions.MQTT_VERSION_DEFAULT
             }
 
             mqttClient.setCallback(object : MqttCallback {
-                override fun connectionLost(cause: Throwable?) {
-                    Log.e("MQTTService", "Connection lost: ${cause?.message}")
+                override fun disconnected(disconnectResponse: MqttDisconnectResponse?) {
+                    Log.e("MQTTService", "Connection lost: ${disconnectResponse.toString()}")
+                }
+
+                override fun mqttErrorOccurred(exception: MqttException?) {
+                    TODO("Not yet implemented")
                 }
 
                 @SuppressLint("ServiceCast")
@@ -83,29 +97,40 @@ class MQTTService : Service() {
                     }
                 }
 
-                override fun deliveryComplete(token: IMqttDeliveryToken) {
+                override fun deliveryComplete(token: IMqttToken?) {
                     Log.d("MQTTService", "Delivery complete")
+                }
+
+                override fun connectComplete(reconnect: Boolean, serverURI: String?) {
+                    Log.d("MQTTService", "Connect complete")
+                }
+
+                override fun authPacketArrived(reasonCode: Int, properties: MqttProperties?) {
+                    Log.d("MQTTService", "Auth packet arrived")
                 }
             })
 
             mqttClient.connect(options)
-            mqttClient.subscribe("a00300334/led", 0)
+            mqttClient.subscribe("a00300334/led/#", 0)
             mqttClient.subscribe("a00300334/pir", 0)
             mqttClient.subscribe("a00300334/light", 0)
             mqttClient.subscribe("a00300334/action", 0)
 
         } catch (e: Exception) {
+            Log.d(TAG, "setupMqtt: " + e.toString())
+            e.printStackTrace()
             e.printStackTrace()
         }
     }
 
-    private fun publishMessage(topic: String?, message: String?) {
+    fun publishMessage(topic: String?, message: String?) {
         if (topic != null && message != null) {
             try {
                 val mqttMessage = MqttMessage()
                 mqttMessage.payload = message.toByteArray()
+                Log.d("MQTTService", "Message before published: $topic -> $message")
                 mqttClient.publish(topic, mqttMessage)
-                Log.d("MQTTService", "Message published: $topic -> $message")
+                Log.d(TAG, "publishMessage: Published")
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -120,6 +145,6 @@ class MQTTService : Service() {
     }
 
     override fun onBind(intent: Intent?): IBinder? {
-        return null
+        return binder;
     }
 }

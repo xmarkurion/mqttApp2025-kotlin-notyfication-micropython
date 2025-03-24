@@ -15,6 +15,7 @@ class MQTTnotyficationChannel private constructor() {
     companion object {
         const val CHANNEL_ID = "MQTTServiceChannel"
         const val MESSAGES_CHANNEL_ID = "MQTTMessagesChannel"
+        const val MESSAGE_GROUP_CHANNEL_ID = "MQTTMessagesGroupChannel"
         const val GROUP_KEY_MQTT_MESSAGES = "com.markurion.mqtt_home_connect.MQTT_MESSAGES"
 
         @SuppressLint("StaticFieldLeak")
@@ -45,19 +46,21 @@ class MQTTnotyficationChannel private constructor() {
             NotificationCompat.Builder(it, CHANNEL_ID)
                 .setContentTitle("MQTT Service")
                 .setContentText(message)
-                .setSmallIcon(R.drawable.baseline_filter_hdr_24) // Ensure this icon exists
+                .setSmallIcon(R.drawable.ic_launcher_foreground) // Ensure this icon exists
                 .setOngoing(true) // Make the notification non-dismissible
-                .addAction(R.drawable.baseline_filter_hdr_24, "Disconnect", pendingDisconnectIntent) // Add the "Disconnect" button
+                .setPriority(NotificationCompat.PRIORITY_HIGH) // Set high priority
+                .setCategory(NotificationCompat.CATEGORY_SERVICE) // Set category as service
+                .addAction(R.drawable.ic_launcher_foreground, "Disconnect", pendingDisconnectIntent) // Add the "Disconnect" button
                 .build()
         }
     }
 
     fun createShortNotification(title: String, message: String): Notification? {
         return this.context?.let {
-            NotificationCompat.Builder(it, CHANNEL_ID)
+            NotificationCompat.Builder(it, MESSAGES_CHANNEL_ID)
                 .setContentTitle(title)
                 .setContentText(message)
-                .setSmallIcon(R.drawable.baseline_back_hand_24)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setGroup(GROUP_KEY_MQTT_MESSAGES)
                 .build()
         }
@@ -65,10 +68,10 @@ class MQTTnotyficationChannel private constructor() {
 
     fun createGroupSummaryNotification(): Notification? {
         return this.context?.let {
-            NotificationCompat.Builder(it, CHANNEL_ID)
+            NotificationCompat.Builder(it, MESSAGE_GROUP_CHANNEL_ID)
                 .setContentTitle("MQTT Messages")
                 .setContentText("You have new messages")
-                .setSmallIcon(R.drawable.baseline_back_hand_24)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setStyle(NotificationCompat.InboxStyle()
                     .setSummaryText("You have new messages"))
                 .setGroup(GROUP_KEY_MQTT_MESSAGES)
@@ -94,8 +97,17 @@ class MQTTnotyficationChannel private constructor() {
             description = "Notifications for incoming MQTT messages"
         }
 
+        val groupChannel = NotificationChannel(
+            MESSAGE_GROUP_CHANNEL_ID,
+            "MQTT Group Messages",
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply {
+            description = "Notifications for incoming MQTT messages"
+        }
+
         val manager = context?.getSystemService(NotificationManager::class.java)
         manager?.createNotificationChannel(channel)
         manager?.createNotificationChannel(messagesChannel)
+        manager?.createNotificationChannel(groupChannel)
     }
 }

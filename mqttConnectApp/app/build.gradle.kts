@@ -36,9 +36,8 @@ android {
 }
 
 dependencies {
-    implementation(libs.org.eclipse.paho.client.mqttv3)
+    implementation(libs.org.eclipse.paho.mqttv5.client)
     implementation(libs.org.eclipse.paho.android.service)
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
