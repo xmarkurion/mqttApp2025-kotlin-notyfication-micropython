@@ -36,6 +36,7 @@ android {
 }
 
 dependencies {
+    implementation ("com.github.Gruzer:simple-gauge-android:0.3.1")
     implementation(libs.org.eclipse.paho.mqttv5.client)
     implementation(libs.org.eclipse.paho.android.service)
     implementation(libs.androidx.core.ktx)
